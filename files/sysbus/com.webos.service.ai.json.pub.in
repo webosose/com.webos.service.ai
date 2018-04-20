@@ -1,0 +1,28 @@
+{
+    "role": {
+        "exeName":"@WEBOS_INSTALL_SBINDIR@/aiservice",
+        "type": "privileged",
+        "allowedNames": [
+            "com.webos.service.ai.voice",
+            "com.webos.service.ai.face",
+            "com.webos.service.ai.gesture"
+        ]
+    },
+    "permissions": [
+        {
+            "service":"com.webos.service.ai.voice",
+            "inbound":["*"],
+            "outbound":["*"]
+        },
+        {
+            "service":"com.webos.service.ai.face",
+            "inbound":["*"],
+            "outbound":["*"]
+        },
+        {
+            "service":"com.webos.service.ai.gesture",
+            "inbound":["*"],
+            "outbound":["*"]
+        }
+    ]
+}

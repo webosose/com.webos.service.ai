@@ -1,0 +1,9 @@
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+tags
+oe-workdir
+oe-logs
+*.swp

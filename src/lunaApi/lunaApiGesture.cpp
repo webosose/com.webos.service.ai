@@ -4,10 +4,11 @@
 #include "logging.h"
 #include "lunaApiGesture.h"
 
-const char* lunaApiGesture::serviceName = "com.webos.service.ai.gesture";
+lunaApiGesture* lunaApiGesture::pInstance     = NULL;
 
-const char* lunaApiGesture::subscribtionState     = "AI_GESTURE_STATE";
-const char* lunaApiGesture::subscribtionResponse  = "AI_GESTURE_STATE";
+const char* lunaApiGesture::gestureServiceId        = "com.webos.service.ai.gesture";
+const char* lunaApiGesture::subscribtionState       = "AI_GESTURE_STATE";
+const char* lunaApiGesture::subscribtionResponse    = "AI_GESTURE_STATE";
 
 const LSMethod lunaApiGesture::rootCategory[] = {
     { "start",                  start,                  0},
@@ -17,44 +18,17 @@ const LSMethod lunaApiGesture::rootCategory[] = {
     { NULL, NULL },
 };
 
-const lunaApiGesture::serviceApi lunaApiGesture::gesturePrivApi[] = {
+const lunaApiGesture::serviceApi lunaApiGesture::gestureApis[] = {
     { "/", rootCategory },
     { NULL, NULL },
 };
 
-const lunaApiGesture::serviceApi lunaApiGesture::gesturePubApi[] = {
-    { NULL, NULL },
-};
-
 lunaApiGesture::lunaApiGesture() {
-    pPrivateApi = gesturePrivApi;
-    pPublicApi  = gesturePubApi;
+    pApis       = gestureApis;
+    serviceId   = gestureServiceId;
 }
 
 lunaApiGesture::~lunaApiGesture() {
-}
-
-void lunaApiGesture::runService(GMainLoop *mainLoop) {
-    LSError lserror;
-    LSErrorInit(&lserror);
-
-    // Register service as the com.webos.service.ai.gesture
-    bool retVal = LSRegisterPalmService(serviceName, &pLSPalmService, &lserror);
-
-    if (retVal) {
-        // Attach the service to main loop for IPC.
-        retVal = LSGmainAttachPalmService(pLSPalmService, mainLoop, &lserror);
-
-        if (retVal) {
-            initLunaService();
-            return ;
-        }
-    }
-
-    LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceName);
-    LSErrorFree(&lserror);
-
-    exit(-1);
 }
 
 // API implementations.
@@ -168,4 +142,8 @@ bool lunaApiGesture::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     g_free(payload);
 
     return true;
+}
+
+void lunaApiGesture::postEvent(char *subscribeKey, char *payload) {
+    lunaApiBase::postEvent(Instance()->pLSHandle, subscribeKey, payload);
 }

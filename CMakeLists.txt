@@ -26,6 +26,10 @@ pkg_check_modules(LUNASERVICE2 REQUIRED luna-service2)
 include_directories(${LUNASERVICE2_INCLUDE_DIRS})
 webos_add_compiler_flags(ALL ${LUNASERVICE2_CFLAGS_OTHER})
 
+pkg_check_modules(JSONC REQUIRED json-c)
+include_directories(${JSONC_INCLUDE_DIRS})
+webos_add_compiler_flags(ALL ${JSONC_CFLAGS_OTHER})
+
 pkg_check_modules(PMLOGLIB REQUIRED PmLogLib)
 include_directories(${PMLOGLIB_INCLUDE_DIRS})
 webos_add_compiler_flags(ALL ${PMLOGLIB_CFLAGS_OTHER})
@@ -41,9 +45,9 @@ set(BIN_NAME aiservice)
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(SRC_LIST
     ${SRC_DIR}/lunaApi/lunaApiBase.cpp
-    ${SRC_DIR}/lunaApi/lunaApiVoice.cpp
     ${SRC_DIR}/lunaApi/lunaApiFace.cpp
     ${SRC_DIR}/lunaApi/lunaApiGesture.cpp
+    ${SRC_DIR}/lunaApi/lunaApiVoice.cpp
     ${SRC_DIR}/util/logging.cpp
     ${SRC_DIR}/main.cpp
 )
@@ -54,9 +58,9 @@ add_executable(${BIN_NAME} ${SRC_LIST})
 # link
 target_link_libraries(
     ${BIN_NAME}
-    json-c
     ${GLIB2_LDFLAGS}
     ${LUNASERVICE2_LDFLAGS}
+    ${JSONC_LDFLAGS}
     ${PMLOGLIB_LDFLAGS}
 )
 

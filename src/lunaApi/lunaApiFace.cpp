@@ -4,10 +4,11 @@
 #include "logging.h"
 #include "lunaApiFace.h"
 
-const char* lunaApiFace::serviceName = "com.webos.service.ai.face";
+lunaApiFace* lunaApiFace::pInstance     = NULL;
 
-const char* lunaApiFace::subscribtionState     = "AI_FACE_STATE";
-const char* lunaApiFace::subscribtionResponse  = "AI_FACE_RESPONSE";
+const char* lunaApiFace::faceServiceId          = "com.webos.service.ai.face";
+const char* lunaApiFace::subscribtionState      = "AI_FACE_STATE";
+const char* lunaApiFace::subscribtionResponse   = "AI_FACE_RESPONSE";
 
 const LSMethod lunaApiFace::rootCategory[] = {
     { "start",                  start,                  0},
@@ -17,44 +18,17 @@ const LSMethod lunaApiFace::rootCategory[] = {
     { NULL, NULL },
 };
 
-const lunaApiFace::serviceApi lunaApiFace::facePrivApi[] = {
+const lunaApiFace::serviceApi lunaApiFace::faceApis[] = {
     { "/", rootCategory },
     { NULL, NULL },
 };
 
-const lunaApiFace::serviceApi lunaApiFace::facePubApi[] = {
-    { NULL, NULL },
-};
-
 lunaApiFace::lunaApiFace() {
-    pPrivateApi = facePrivApi;
-    pPublicApi  = facePubApi;
+    pApis       = faceApis;
+    serviceId   = faceServiceId;
 }
 
 lunaApiFace::~lunaApiFace() {
-}
-
-void lunaApiFace::runService(GMainLoop *mainLoop) {
-    LSError lserror;
-    LSErrorInit(&lserror);
-
-    // Register service as the com.webos.service.ai.face
-    bool retVal = LSRegisterPalmService(serviceName, &pLSPalmService, &lserror);
-
-    if (retVal) {
-        // Attach the service to main loop for IPC.
-        retVal = LSGmainAttachPalmService(pLSPalmService, mainLoop, &lserror);
-
-        if (retVal) {
-            initLunaService();
-            return ;
-        }
-    }
-
-    LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceName);
-    LSErrorFree(&lserror);
-
-    exit(-1);
 }
 
 // API implementations.
@@ -168,4 +142,8 @@ bool lunaApiFace::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     g_free(payload);
 
     return true;
+}
+
+void lunaApiFace::postEvent(char *subscribeKey, char *payload) {
+    lunaApiBase::postEvent(Instance()->pLSHandle, subscribeKey, payload);
 }

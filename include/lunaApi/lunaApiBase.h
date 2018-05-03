@@ -7,34 +7,32 @@
 
 class lunaApiBase {
 public:
-    lunaApiBase();
     ~lunaApiBase();
 
-    virtual void runService(GMainLoop *) = 0;
+    void runService(GMainLoop *);
 
 protected:
+    lunaApiBase();
+
     typedef struct {
         const char  *category;
         LSMethod    *methods;
     } serviceApi;
 
-    static serviceApi *pPrivateApi;
-    static serviceApi *pPublicApi;
+    serviceApi  *pApis;
 
 protected:
-    void initLunaService();
+    bool initLunaService();
 
     void LSMessageReplyErrorInvalidParams(LSHandle *sh, LSMessage *msg);
     void LSMessageReplyErrorBadJSON(LSHandle *sh, LSMessage *msg);
     void LSMessageReplySuccess(LSHandle *sh, LSMessage *msg, char *payload);
 
-    static void postEvent(char *subscribeKey, char *payload);
+    static void postEvent(LSHandle *handle, char *subscribeKey, char *payload);
 
 protected:
-    LSPalmService        *pLSPalmService;
-   
-protected: 
-    static lunaApiBase   *pInstance;
+    char        *serviceId;
+    LSHandle    *pLSHandle;
 };
 
 #endif

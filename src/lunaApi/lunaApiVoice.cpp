@@ -4,8 +4,9 @@
 #include "logging.h"
 #include "lunaApiVoice.h"
 
-const char* lunaApiVoice::serviceName = "com.webos.service.ai.voice";
+lunaApiVoice* lunaApiVoice::pInstance     = NULL;
 
+const char* lunaApiVoice::voiceServiceId        = "com.webos.service.ai.voice";
 const char* lunaApiVoice::subscribtionState     = "AI_VOICE_STATE";
 const char* lunaApiVoice::subscribtionResponse  = "AI_VOICE_RESPONSE";
 
@@ -17,44 +18,17 @@ const LSMethod lunaApiVoice::rootCategory[] = {
     { NULL, NULL },
 };
 
-const lunaApiVoice::serviceApi lunaApiVoice::voicePrivApi[] = {
+const lunaApiVoice::serviceApi lunaApiVoice::voiceApis[] = {
     { "/", rootCategory },
     { NULL, NULL },
 };
 
-const lunaApiVoice::serviceApi lunaApiVoice::voicePubApi[] = {
-    { NULL, NULL },
-};
-
 lunaApiVoice::lunaApiVoice() {
-    pPrivateApi = voicePrivApi;
-    pPublicApi  = voicePubApi;
+    pApis       = voiceApis;
+    serviceId   = voiceServiceId;
 }
 
 lunaApiVoice::~lunaApiVoice() {
-}
-
-void lunaApiVoice::runService(GMainLoop *mainLoop) {
-    LSError lserror;
-    LSErrorInit(&lserror);
-
-    // Register service as the com.webos.service.ai.voice
-    bool retVal = LSRegisterPalmService(serviceName, &pLSPalmService, &lserror);
-
-    if (retVal) {
-        // Attach the service to main loop for IPC.
-        retVal = LSGmainAttachPalmService(pLSPalmService, mainLoop, &lserror);
-
-        if (retVal) {
-            initLunaService();
-            return ;
-        }
-    }
-
-    LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceName);
-    LSErrorFree(&lserror);
-
-    exit(-1);
 }
 
 // API implementations.
@@ -168,4 +142,8 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     g_free(payload);
 
     return true;
+}
+
+void lunaApiVoice::postEvent(char *subscribeKey, char *payload) {
+    lunaApiBase::postEvent(Instance()->pLSHandle, subscribeKey, payload);
 }

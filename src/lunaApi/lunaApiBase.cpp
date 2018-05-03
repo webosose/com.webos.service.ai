@@ -3,45 +3,56 @@
 #include "logging.h"
 #include "lunaApiBase.h"
 
-lunaApiBase::serviceApi* lunaApiBase::pPrivateApi   = NULL;
-lunaApiBase::serviceApi* lunaApiBase::pPublicApi    = NULL;
-
-lunaApiBase*             lunaApiBase::pInstance     = NULL;
-
-lunaApiBase::lunaApiBase() {
+lunaApiBase::lunaApiBase():
+pApis(NULL),
+serviceId(NULL),
+pLSHandle(NULL) {
 }
 
 lunaApiBase::~lunaApiBase() {
 }
 
-void lunaApiBase::initLunaService() {
+void lunaApiBase::runService(GMainLoop *mainLoop) {
+    LSError lserror;
+    LSErrorInit(&lserror);
+
+    if (serviceId) {
+        // Register service as the com.webos.service.ai.voice
+        bool retVal = LSRegister(serviceId, &pLSHandle, &lserror);
+
+        if (retVal) {
+            // Attach the service to main loop for IPC.
+            retVal = LSGmainAttach(pLSHandle, mainLoop, &lserror);
+
+            if (retVal) {
+                initLunaService();
+                return ;
+            }
+        }
+    }
+
+    LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceId);
+    LSErrorFree(&lserror);
+
+    exit(-1);
+}
+
+bool lunaApiBase::initLunaService() {
     LSError lserror;
     LSErrorInit(&lserror);
 
     LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... )", __FILE__, __LINE__, __FUNCTION__);
 
-    // Get private/public bus for aiservice.
-    LSHandle *pPrivateHandle  = LSPalmServiceGetPrivateConnection(pLSPalmService);
-    LSHandle *pPublicHandle   = LSPalmServiceGetPublicConnection(pLSPalmService);
-
-    // Registe private method
-    for (serviceApi *p = pPrivateApi; p->category != NULL; p++) {
-        if( !LSRegisterCategory(pPrivateHandle, p->category, p->methods, NULL, NULL, &lserror) ) {
+    // Registe methods
+    for (serviceApi *p = pApis; p->category != NULL; p++) {
+        if( !LSRegisterCategory(pLSHandle, p->category, p->methods, NULL, NULL, &lserror) ) {
             LSErrorPrint(&lserror, stderr);
             LSErrorFree(&lserror);
-            return;
+            return false;
         }
     }
 
-    // Registe public method
-    for (serviceApi *p = pPublicApi; p->category != NULL; p++) {
-        fprintf(stderr, "%p\n", pPublicApi);
-        if( !LSRegisterCategory(pPublicHandle, p->category, p->methods, NULL, NULL, &lserror) ) {
-            LSErrorPrint(&lserror, stderr);
-            LSErrorFree(&lserror);
-            return;
-        }
-    }
+    return true;
 }
 
 void lunaApiBase::LSMessageReplyErrorInvalidParams(LSHandle *sh, LSMessage *msg) {
@@ -84,13 +95,13 @@ void lunaApiBase::LSMessageReplySuccess(LSHandle *sh, LSMessage *msg, char *payl
     }
 }
 
-void lunaApiBase::postEvent(char *subscribeKey, char *payload) {
+void lunaApiBase::postEvent(LSHandle *handle, char *subscribeKey, char *payload) {
     LSError lserror;
     LSErrorInit(&lserror);
 
     // Post event message to the subscribers
-    bool retVal = LSSubscriptionRespond(
-        lunaApiBase::pInstance->pLSPalmService,
+    bool retVal = LSSubscriptionReply(
+        handle,
         subscribeKey,
         payload,
         &lserror

@@ -1,0 +1,11 @@
+{
+    "com.webos.service.ai.face": [
+        "public"
+    ],
+    "com.webos.service.ai.gesture": [
+        "public"
+    ],
+    "com.webos.service.ai.voice": [
+        "public"
+    ]
+}

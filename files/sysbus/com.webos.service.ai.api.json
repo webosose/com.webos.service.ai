@@ -1,0 +1,18 @@
+{
+    "public": [
+        "com.webos.service.ai.face/start",
+        "com.webos.service.ai.face/stop",
+        "com.webos.service.ai.face/getState",
+        "com.webos.service.ai.face/getResponse",
+
+        "com.webos.service.ai.gesture/start",
+        "com.webos.service.ai.gesture/stop",
+        "com.webos.service.ai.gesture/getState",
+        "com.webos.service.ai.gesture/getResponse",
+        
+        "com.webos.service.ai.voice/start",
+        "com.webos.service.ai.voice/stop",
+        "com.webos.service.ai.voice/getState",
+        "com.webos.service.ai.voice/getResponse"
+    ]
+}

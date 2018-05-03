@@ -45,10 +45,9 @@ int main(int argc, char **argv) {
     
     mainLoop = g_main_loop_new(NULL, FALSE);
 
+    lunaApiFace::Instance()->runService(mainLoop);
+    lunaApiGesture::Instance()->runService(mainLoop);
     lunaApiVoice::Instance()->runService(mainLoop);
-    // Todo : resolve the 'ls-hubd LS_OLD_PALM_SERVICE_DETECTED Old Palm services are deprecated. You should not LSRegister twice.'
-    //lunaApiFace::Instance()->runService(mainLoop);
-    //lunaApiGesture::Instance()->runService(mainLoop);
     
     LOG_INFO(MSGID_LUNASERVICE, 0, "%s( ... ) , aiservice daemon started" , __FUNCTION__);
     g_main_loop_run(mainLoop);

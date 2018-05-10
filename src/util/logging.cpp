@@ -33,7 +33,7 @@
 //=================================================================================================
 void _good_assert(const char *cond_str, bool cond) {
     if (G_UNLIKELY(!(cond))) {
-        LOG_CRITICAL("ASSERTION_FAIL", 1, PMLOGKS("CAUSE", cond_str), "");
+        AI_LOG_CRITICAL("ASSERTION_FAIL", 1, PMLOGKS("CAUSE", cond_str), "");
         *(int *)0x00 = 0;
     }
 }

@@ -31,7 +31,7 @@ void lunaApiBase::runService(GMainLoop *mainLoop) {
         }
     }
 
-    LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceId);
+    AI_LOG_CRITICAL(MSGID_LUNASERVICE, 1, PMLOGKS("ERRTEXT", lserror.message), "Could not initialize %s" , serviceId);
     LSErrorFree(&lserror);
 
     exit(-1);
@@ -41,7 +41,7 @@ bool lunaApiBase::initLunaService() {
     LSError lserror;
     LSErrorInit(&lserror);
 
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... )", __FILE__, __LINE__, __FUNCTION__);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... )", __FILE__, __LINE__, __FUNCTION__);
 
     // Registe methods
     for (serviceApi *p = pApis; p->category != NULL; p++) {

@@ -66,7 +66,7 @@ bool lunaApiFace::stop(LSHandle *sh, LSMessage *msg, void *data) {
 }
 
 bool lunaApiFace::getState(LSHandle *sh, LSMessage *msg, void *data) {
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s", __FILE__, __LINE__, __FUNCTION__, LSMessageGetPayload(msg));
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s", __FILE__, __LINE__, __FUNCTION__, LSMessageGetPayload(msg));
 
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
     if (is_error(object)) {
@@ -79,7 +79,7 @@ bool lunaApiFace::getState(LSHandle *sh, LSMessage *msg, void *data) {
     const char *clientId    = LSMessageGetUniqueToken(msg);
     const char *appId       = LSMessageGetApplicationID(msg);
 
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId);
 
     if (subscribe) {
         LSError lserror;
@@ -96,7 +96,7 @@ bool lunaApiFace::getState(LSHandle *sh, LSMessage *msg, void *data) {
     char *stateStr = "idle";
     char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s,\"state\":\"%s\"}", subscribe ? "true" : "false", stateStr);
 
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), stateStr = %s, payload = %s", __FILE__, __LINE__, __FUNCTION__, stateStr, payload);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), stateStr = %s, payload = %s", __FILE__, __LINE__, __FUNCTION__, stateStr, payload);
 
     Instance()->LSMessageReplySuccess(sh, msg, payload);
 
@@ -106,7 +106,7 @@ bool lunaApiFace::getState(LSHandle *sh, LSMessage *msg, void *data) {
 }
 
 bool lunaApiFace::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) , payload = %s" , __FILE__ , __LINE__ , __FUNCTION__ , LSMessageGetPayload(msg));
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) , payload = %s" , __FILE__ , __LINE__ , __FUNCTION__ , LSMessageGetPayload(msg));
 
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
     if (is_error(object)) {
@@ -119,7 +119,7 @@ bool lunaApiFace::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     const char *clientId            = LSMessageGetUniqueToken(msg);
     const char *appId               = LSMessageGetApplicationID(msg);
 
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__ ,__LINE__ ,__FUNCTION__ ,clientName ,appId , clientId);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__ ,__LINE__ ,__FUNCTION__ ,clientName ,appId , clientId);
 
     if (subscribe) {
         LSError lserror;
@@ -135,7 +135,7 @@ bool lunaApiFace::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     char *subscribed = subscribe ? "true" : "false";
     char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s}" ,subscribed);
 
-    LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s" , __FILE__, __LINE__, __FUNCTION__, payload);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s" , __FILE__, __LINE__, __FUNCTION__, payload);
 
     Instance()->LSMessageReplySuccess(sh, msg, payload);
 

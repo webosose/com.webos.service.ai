@@ -28,10 +28,10 @@ private:
     static bool stop(LSHandle *sh, LSMessage *msg, void *data);
     static bool getState(LSHandle *sh, LSMessage *msg, void *data);
     static bool getResponse(LSHandle *sh, LSMessage *msg, void *data);
-    
-    static void postEvent(char *subscribeKey, char *payload);
 
-private: 
+    static void postEvent(void *subscribeKey, void *payload);
+
+private:
     static lunaApiFace *pInstance;
 };
 

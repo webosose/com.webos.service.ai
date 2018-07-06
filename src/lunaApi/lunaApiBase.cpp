@@ -95,15 +95,15 @@ void lunaApiBase::LSMessageReplySuccess(LSHandle *sh, LSMessage *msg, char *payl
     }
 }
 
-void lunaApiBase::postEvent(LSHandle *handle, char *subscribeKey, char *payload) {
+void lunaApiBase::postEvent(LSHandle *handle, void *subscribeKey, void *payload) {
     LSError lserror;
     LSErrorInit(&lserror);
 
-    // Post event message to the subscribers
+    // Post event message to the clients
     bool retVal = LSSubscriptionReply(
         handle,
-        subscribeKey,
-        payload,
+        (char *)subscribeKey,
+        (char *)payload,
         &lserror
     );
 

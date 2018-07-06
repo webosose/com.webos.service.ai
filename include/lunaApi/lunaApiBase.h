@@ -28,7 +28,7 @@ protected:
     void LSMessageReplyErrorBadJSON(LSHandle *sh, LSMessage *msg);
     void LSMessageReplySuccess(LSHandle *sh, LSMessage *msg, char *payload);
 
-    static void postEvent(LSHandle *handle, char *subscribeKey, char *payload);
+    static void postEvent(LSHandle *handle, void *subscribeKey, void *payload);
 
 protected:
     char        *serviceId;

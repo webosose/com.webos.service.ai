@@ -7,8 +7,6 @@
 lunaApiVoice* lunaApiVoice::pInstance     = NULL;
 
 const char* lunaApiVoice::voiceServiceId        = "com.webos.service.ai.voice";
-const char* lunaApiVoice::subscribtionState     = "AI_VOICE_STATE";
-const char* lunaApiVoice::subscribtionResponse  = "AI_VOICE_RESPONSE";
 
 const LSMethod lunaApiVoice::rootCategory[] = {
     { "start",                  start,                  0},
@@ -143,6 +141,6 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     return true;
 }
 
-void lunaApiVoice::postEvent(char *subscribeKey, char *payload) {
+void lunaApiVoice::postEvent(void *subscribeKey, void *payload) {
     lunaApiBase::postEvent(Instance()->pLSHandle, subscribeKey, payload);
 }

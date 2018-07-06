@@ -2,15 +2,13 @@
 #define __LUNAAPIVOICE_H__
 
 #include <lunaApiBase.h>
+#include <googleAssistant/speechRecognitionWorker.h>
 
 class lunaApiVoice : public lunaApiBase {
 public:
     ~lunaApiVoice();
 
     static const char *voiceServiceId;
-
-    static const char *subscribtionState;
-    static const char *subscribtionResponse;
 
     static lunaApiVoice* Instance() {
         if (!pInstance) pInstance = new lunaApiVoice;
@@ -33,6 +31,8 @@ private:
 
 private:
     static lunaApiVoice *pInstance;
+
+    speechRecognitionWorker mSrw;
 };
 
 #endif

@@ -13,6 +13,7 @@ After=pulseaudio.service default-webos.target
 Type=simple
 OOMScoreAdjust=-1000
 ExecStart=/usr/sbin/aiservice
+EnvironmentFile=-/var/systemd/system/env/ai.env
 Restart=on-failure
 
 [Install]

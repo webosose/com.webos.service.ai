@@ -4,6 +4,8 @@
 #include "logging.h"
 #include "lunaApiVoice.h"
 
+using namespace speechRecognition;
+
 lunaApiVoice* lunaApiVoice::pInstance     = NULL;
 
 const char* lunaApiVoice::voiceServiceId        = "com.webos.service.ai.voice";
@@ -24,6 +26,8 @@ const lunaApiVoice::serviceApi lunaApiVoice::voiceApis[] = {
 lunaApiVoice::lunaApiVoice() {
     pApis       = voiceApis;
     serviceId   = voiceServiceId;
+
+    mSrw.register_event_Callback(postEvent);
 }
 
 lunaApiVoice::~lunaApiVoice() {
@@ -37,13 +41,23 @@ bool lunaApiVoice::start(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    char *payload = NULL;
+    const char *mode        = json_object_get_string(json_object_object_get(object, "mode"));
+    json_object *keyword    = json_object_object_get(object, "keywordDetect");
+    const bool useKeyword   = json_object_get_boolean(keyword);
+    const char *clientName  = LSMessageGetSenderServiceName(msg);
+    const char *clientId    = LSMessageGetUniqueToken(msg);
+    const char *appId       = LSMessageGetApplicationID(msg);
 
-    // ToDo : start voice engine worker
-    payload = g_strdup_printf("{\"returnValue\":true}");
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s, mode = %s, useKeyword = %d", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId, mode, useKeyword);
+
+    ERROR_CODE ret = INVALID_PARAM;
+    if (mode != NULL && keyword != NULL) ret = Instance()->mSrw.start(mode, useKeyword);
+
+    char *payload = NULL;
+    if (ret == NONE) payload = g_strdup_printf("{\"returnValue\":true}");
+    else payload = g_strdup_printf("{\"returnValue\":false,\"errorCode\":%d,\"errorText\":\"%s\"}", ret, errorStr(ret));
 
     Instance()->LSMessageReplySuccess(sh, msg, payload);
-
     g_free(payload);
 
     return true;
@@ -56,8 +70,21 @@ bool lunaApiVoice::stop(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    // ToDo : stop voice engine worker
-    Instance()->LSMessageReplySuccess(sh, msg, NULL);
+    const bool subscribe    = json_object_get_boolean(json_object_object_get(object, "subscribe"));
+    const char *clientName  = LSMessageGetSenderServiceName(msg);
+    const char *clientId    = LSMessageGetUniqueToken(msg);
+    const char *appId       = LSMessageGetApplicationID(msg);
+
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId);
+
+    ERROR_CODE ret = Instance()->mSrw.stop();
+
+    char *payload = NULL;
+    if (ret == NONE) payload = g_strdup_printf("{\"returnValue\":true}");
+    else payload = g_strdup_printf("{\"returnValue\":false,\"errorCode\":%d,\"errorText\":\"%s\"}", ret, errorStr(ret));
+
+    Instance()->LSMessageReplySuccess(sh, msg, payload);
+    g_free(payload);
 
     return true;
 }
@@ -82,18 +109,17 @@ bool lunaApiVoice::getState(LSHandle *sh, LSMessage *msg, void *data) {
         LSError lserror;
         LSErrorInit(&lserror);
 
-        if (!LSSubscriptionAdd(sh, subscribtionState, msg, &lserror)) {
+        if (!LSSubscriptionAdd(sh, subscription_key_state, msg, &lserror)) {
             LSErrorPrint(&lserror, stderr);
             LSErrorFree(&lserror);
             return true;
         }
     }
 
-    // ToDo : getState voice engine worker
-    char *stateStr = "idle";
-    char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s,\"state\":\"%s\"}", subscribe ? "true" : "false", stateStr);
+    char *state     = stateStr(Instance()->mSrw.getState());
+    char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s,\"state\":\"%s\"}", subscribe ? "true" : "false", state);
 
-    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), stateStr = %s, payload = %s", __FILE__, __LINE__, __FUNCTION__, stateStr, payload);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), state = %s, payload = %s", __FILE__, __LINE__, __FUNCTION__, state, payload);
 
     Instance()->LSMessageReplySuccess(sh, msg, payload);
 
@@ -116,13 +142,13 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     const char *clientId            = LSMessageGetUniqueToken(msg);
     const char *appId               = LSMessageGetApplicationID(msg);
 
-    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__ ,__LINE__ ,__FUNCTION__ ,clientName ,appId , clientId);
+    AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId);
 
     if (subscribe) {
         LSError lserror;
         LSErrorInit(&lserror);
 
-        if (!LSSubscriptionAdd(sh, subscribtionResponse, msg, &lserror)) {
+        if (!LSSubscriptionAdd(sh, subscription_key_response, msg, &lserror)) {
             LSErrorPrint(&lserror, stderr);
             LSErrorFree(&lserror);
             return true;
@@ -130,7 +156,7 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     }
 
     char *subscribed = subscribe ? "true" : "false";
-    char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s}" ,subscribed);
+    char *payload    = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s}", subscribed);
 
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s" , __FILE__, __LINE__, __FUNCTION__, payload);
 

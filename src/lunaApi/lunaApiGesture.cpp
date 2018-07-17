@@ -47,7 +47,7 @@ lunaApiGesture::~lunaApiGesture() {
 // API implementations.
 bool lunaApiGesture::start(LSHandle *sh, LSMessage *msg, void *data) {
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
-    if (is_error(object)) {
+    if (!object) {
         Instance()->LSMessageReplyErrorBadJSON(sh, msg);
         return true;
     }
@@ -64,7 +64,7 @@ bool lunaApiGesture::start(LSHandle *sh, LSMessage *msg, void *data) {
 
 bool lunaApiGesture::stop(LSHandle *sh, LSMessage *msg, void *data) {
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
-    if (is_error(object)) {
+    if (!object) {
         Instance()->LSMessageReplyErrorBadJSON(sh, msg);
         return true;
     }
@@ -81,7 +81,7 @@ bool lunaApiGesture::getState(LSHandle *sh, LSMessage *msg, void *data) {
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s", __FILE__, __LINE__, __FUNCTION__, LSMessageGetPayload(msg));
 
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
-    if (is_error(object)) {
+    if (!object) {
         Instance()->LSMessageReplyErrorBadJSON(sh, msg);
         return true;
     }
@@ -102,7 +102,7 @@ bool lunaApiGesture::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) , payload = %s" , __FILE__ , __LINE__ , __FUNCTION__ , LSMessageGetPayload(msg));
 
     json_object *object = json_tokener_parse(LSMessageGetPayload(msg));
-    if (is_error(object)) {
+    if (!object) {
         Instance()->LSMessageReplyErrorBadJSON(sh, msg);
         return true;
     }

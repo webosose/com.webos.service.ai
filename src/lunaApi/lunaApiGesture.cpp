@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright (c) 2018-2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,25 +19,25 @@
 #include "logging.h"
 #include "lunaApiGesture.h"
 
-lunaApiGesture* lunaApiGesture::pInstance     = NULL;
-
-const char* lunaApiGesture::gestureServiceId        = "com.webos.service.ai.gesture";
+lunaApiGesture* lunaApiGesture::pInstance = NULL;
 
 const LSMethod lunaApiGesture::rootCategory[] = {
-    { "start",                  start,                  0},
-    { "stop",                   stop,                   0},
-    { "getState",               getState,               0},
-    { "getResponse",            getResponse,            0},
+    { "start",                  start,                  LUNA_METHOD_FLAGS_NONE},
+    { "stop",                   stop,                   LUNA_METHOD_FLAGS_NONE},
+    { "getState",               getState,               LUNA_METHOD_FLAGS_NONE},
+    { "getResponse",            getResponse,            LUNA_METHOD_FLAGS_NONE},
     { NULL, NULL },
 };
 
 const lunaApiGesture::serviceApi lunaApiGesture::gestureApis[] = {
-    { "/", rootCategory },
+    { "/", (LSMethod *)rootCategory },
     { NULL, NULL },
 };
 
 lunaApiGesture::lunaApiGesture() {
-    pApis       = gestureApis;
+    static const char *gestureServiceId = "com.webos.service.ai.gesture";
+
+    pApis       = (serviceApi *)gestureApis;
     serviceId   = gestureServiceId;
 }
 

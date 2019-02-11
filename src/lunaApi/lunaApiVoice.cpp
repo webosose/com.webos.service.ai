@@ -1,4 +1,4 @@
-// Copyright (c) 2018 LG Electronics, Inc.
+// Copyright (c) 2018-2019 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,28 +22,28 @@
 
 using namespace speechRecognition;
 
-lunaApiVoice* lunaApiVoice::pInstance     = NULL;
-
-const char* lunaApiVoice::voiceServiceId        = "com.webos.service.ai.voice";
+lunaApiVoice* lunaApiVoice::pInstance = NULL;
 
 const LSMethod lunaApiVoice::rootCategory[] = {
-    { "start",                  start,                  0},
-    { "stop",                   stop,                   0},
-    { "getState",               getState,               0},
-    { "getResponse",            getResponse,            0},
+    { "start",                  start,                  LUNA_METHOD_FLAGS_NONE},
+    { "stop",                   stop,                   LUNA_METHOD_FLAGS_NONE},
+    { "getState",               getState,               LUNA_METHOD_FLAGS_NONE},
+    { "getResponse",            getResponse,            LUNA_METHOD_FLAGS_NONE},
     { NULL, NULL },
 };
 
 const lunaApiVoice::serviceApi lunaApiVoice::voiceApis[] = {
-    { "/", rootCategory },
+    { "/", (LSMethod *)rootCategory },
     { NULL, NULL },
 };
 
 lunaApiVoice::lunaApiVoice() {
-    pApis       = voiceApis;
+    static const char *voiceServiceId = "com.webos.service.ai.voice";
+
+    pApis       = (serviceApi *)voiceApis;
     serviceId   = voiceServiceId;
 
-    mSrw.register_event_Callback(postEvent);
+    mSrw.register_event_Callback((pfnEventCB)postEvent);
 }
 
 lunaApiVoice::~lunaApiVoice() {
@@ -57,9 +57,11 @@ bool lunaApiVoice::start(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    const char *mode        = json_object_get_string(json_object_object_get(object, "mode"));
-    json_object *keyword    = json_object_object_get(object, "keywordDetect");
-    const bool useKeyword   = json_object_get_boolean(keyword);
+    json_object *v;
+
+    const char *mode        = json_object_object_get_ex(object, "mode", &v) ? json_object_get_string(v) : NULL;
+    json_object *keyword    = json_object_object_get_ex(object, "keywordDetect", &v) ? v : NULL;
+    const bool useKeyword   = keyword ? json_object_get_boolean(keyword) : false;
     const char *clientName  = LSMessageGetSenderServiceName(msg);
     const char *clientId    = LSMessageGetUniqueToken(msg);
     const char *appId       = LSMessageGetApplicationID(msg);
@@ -67,7 +69,7 @@ bool lunaApiVoice::start(LSHandle *sh, LSMessage *msg, void *data) {
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s, mode = %s, useKeyword = %d", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId, mode, useKeyword);
 
     ERROR_CODE ret = INVALID_PARAM;
-    if (mode != NULL && keyword != NULL) ret = Instance()->mSrw.start(mode, useKeyword);
+    if (mode != NULL && keyword != NULL) ret = Instance()->mSrw.start((char *)mode, useKeyword);
 
     char *payload = NULL;
     if (ret == NONE) payload = g_strdup_printf("{\"returnValue\":true}");
@@ -86,7 +88,6 @@ bool lunaApiVoice::stop(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    const bool subscribe    = json_object_get_boolean(json_object_object_get(object, "subscribe"));
     const char *clientName  = LSMessageGetSenderServiceName(msg);
     const char *clientId    = LSMessageGetUniqueToken(msg);
     const char *appId       = LSMessageGetApplicationID(msg);
@@ -114,7 +115,9 @@ bool lunaApiVoice::getState(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    const bool subscribe    = json_object_get_boolean(json_object_object_get(object, "subscribe"));
+    json_object *v;
+
+    const bool subscribe    = json_object_object_get_ex(object, "subscribe", &v) ? json_object_get_boolean(v) : false;
     const char *clientName  = LSMessageGetSenderServiceName(msg);
     const char *clientId    = LSMessageGetUniqueToken(msg);
     const char *appId       = LSMessageGetApplicationID(msg);
@@ -153,10 +156,12 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
         return true;
     }
 
-    const bool subscribe            = json_object_get_boolean(json_object_object_get(object, "subscribe"));
-    const char *clientName          = LSMessageGetSenderServiceName(msg);
-    const char *clientId            = LSMessageGetUniqueToken(msg);
-    const char *appId               = LSMessageGetApplicationID(msg);
+    json_object *v;
+
+    const bool subscribe    = json_object_object_get_ex(object, "subscribe", &v) ? json_object_get_boolean(v) : false;
+    const char *clientName  = LSMessageGetSenderServiceName(msg);
+    const char *clientId    = LSMessageGetUniqueToken(msg);
+    const char *appId       = LSMessageGetApplicationID(msg);
 
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ) clientName = %s, applicationId = %s, clientId = %s", __FILE__, __LINE__, __FUNCTION__, clientName, appId, clientId);
 
@@ -171,7 +176,7 @@ bool lunaApiVoice::getResponse(LSHandle *sh, LSMessage *msg, void *data) {
         }
     }
 
-    char *subscribed = subscribe ? "true" : "false";
+    const char *subscribed = subscribe ? "true" : "false";
     char *payload    = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s}", subscribed);
 
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), payload = %s" , __FILE__, __LINE__, __FUNCTION__, payload);

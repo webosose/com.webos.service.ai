@@ -1,0 +1,10 @@
+{
+    "ai.control": {
+        "description": "Manage the ai services",
+        "public": false
+    },
+    "ai.consumer": {
+        "description": "Get state or response of the ai services",
+        "public": true
+    }
+}

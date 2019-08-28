@@ -1,6 +1,6 @@
 # @@@LICENSE
 #
-# Copyright (c) 2018 LG Electronics, Inc.
+# Copyright (c) 2018-2019 LG Electronics, Inc.
 #
 # LICENSE@@@
 
@@ -12,9 +12,6 @@ After=pulseaudio.service default-webos.target
 [Service]
 Type=simple
 OOMScoreAdjust=-1000
-ExecStart=/usr/sbin/aiservice
 EnvironmentFile=-/var/systemd/system/env/ai.env
+ExecStart=/usr/sbin/aiservice
 Restart=on-failure
-
-[Install]
-WantedBy=default-webos.target

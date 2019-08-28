@@ -1,6 +1,6 @@
 # @@@LICENSE
 #
-# Copyright (c) 2018 LG Electronics, Inc.
+# Copyright (c) 2018-2019 LG Electronics, Inc.
 #
 # LICENSE@@@
 
@@ -37,6 +37,7 @@ include_directories(
 )
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(SYSTEMD_FILE_DIR "${CMAKE_SOURCE_DIR}/files/systemd")
 
 set(SRC_LIST
     ${SRC_DIR}/lunaApi/lunaApiBase.cpp
@@ -61,8 +62,14 @@ target_link_libraries(
     ${GOOGLEASSISTANT_LDFLAGS}
 )
 
-# install
+# install binary
 install(TARGETS ${BIN_NAME} DESTINATION ${WEBOS_INSTALL_SBINDIR})
+
+# install systemd files
+install(FILES ${SYSTEMD_FILE_DIR}/ai.service
+        DESTINATION ${WEBOS_INSTALL_SYSCONFDIR}/systemd/system)
+install(FILES ${SYSTEMD_FILE_DIR}/ai.conf
+        DESTINATION ${WEBOS_INSTALL_SYSCONFDIR}/systemd/system.conf.d)
 
 # add dbus and lunaservice2 from  files/sysbus/*
 webos_build_system_bus_files()

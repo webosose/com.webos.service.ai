@@ -6,8 +6,8 @@
 
 [Unit]
 Description=webos - "%n"
-Requires=pulseaudio.service default-webos.target
-After=pulseaudio.service default-webos.target
+Requires=pulseaudio.service
+After=pulseaudio.service
 
 [Service]
 Type=simple

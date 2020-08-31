@@ -1,0 +1,5 @@
+Open Source Software Package:
+- name: webOSOSE-com.webos.service.ai
+  version: 1.0.0
+  source: https://github.com/webosose/com.webos.service.ai
+  license: Apache-2.0

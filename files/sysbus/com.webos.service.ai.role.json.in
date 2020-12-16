@@ -1,6 +1,7 @@
 {
     "exeName":"@WEBOS_INSTALL_SBINDIR@/aiservice",
     "type": "privileged",
+    "trustLevel": "oem",
     "allowedNames": [
         "com.webos.service.ai.face",
         "com.webos.service.ai.gesture",

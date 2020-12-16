@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 LG Electronics, Inc.
+// Copyright (c) 2018-2020 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ bool lunaApiVoice::getState(LSHandle *sh, LSMessage *msg, void *data) {
         }
     }
 
-    char *state     = stateStr(Instance()->mSrw.getState());
+    const char *state     = stateStr(Instance()->mSrw.getState());
     char *payload   = g_strdup_printf("{\"returnValue\":true,\"subscribed\":%s,\"state\":\"%s\"}", subscribe ? "true" : "false", state);
 
     AI_LOG_INFO(MSGID_LUNASERVICE, 0, "[ %s : %d ] %s( ... ), state = %s, payload = %s", __FILE__, __LINE__, __FUNCTION__, state, payload);

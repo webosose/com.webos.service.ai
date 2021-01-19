@@ -1,4 +1,9 @@
 {
+    "allowedNames": [
+        "com.webos.service.ai.face",
+        "com.webos.service.ai.gesture",
+        "com.webos.service.ai.voice"
+    ],
     "ai.face": ["dev"],
     "ai.gesture": ["dev"],
     "ai.voice": ["dev"],

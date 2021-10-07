@@ -1,6 +1,6 @@
 # @@@LICENSE
 #
-# Copyright (c) 2018-2019 LG Electronics, Inc.
+# Copyright (c) 2018-2021 LG Electronics, Inc.
 #
 # LICENSE@@@
 
@@ -63,13 +63,10 @@ target_link_libraries(
 )
 
 # install binary
-install(TARGETS ${BIN_NAME} DESTINATION ${WEBOS_INSTALL_SBINDIR})
+install(TARGETS ${BIN_NAME} DESTINATION ${CMAKE_INSTALL_SBINDIR})
 
 # install systemd files
-install(FILES ${SYSTEMD_FILE_DIR}/ai.service
-        DESTINATION ${WEBOS_INSTALL_SYSCONFDIR}/systemd/system)
-install(FILES ${SYSTEMD_FILE_DIR}/ai.conf
-        DESTINATION ${WEBOS_INSTALL_SYSCONFDIR}/systemd/system.conf.d)
+install(FILES ${SYSTEMD_FILE_DIR}/ai.service DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
 
 # add dbus and lunaservice2 from  files/sysbus/*
 webos_build_system_bus_files()
